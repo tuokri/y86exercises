@@ -1,0 +1,9 @@
+.pos 0
+    irmovq      $10,    %rbx    # loop counter, 10 for test
+    irmovq      $0,     %rax    # init %rax
+main:
+    irmovq      $1,     %r10    # constant 1 for inc. and dec.
+    addq        %rbx,   %rax    # add loop counter to %rax
+    subq        %r10,   %rbx    # decrement loop counter
+    jne         main            # if rbx != 0, jump main
+    halt                        # else halt

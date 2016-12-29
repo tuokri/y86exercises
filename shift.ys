@@ -1,0 +1,56 @@
+# Shift-right is the same as integer division by a power of 2.
+# Assuming X is an integer, X >> 27 is the same as X / 134217728.
+# Above is true.
+#
+# Shift-left is the same as integer multiplication by a power of 2. OR IS IT?
+# Let's find out!
+# Assuming X is an integer, X << 2 is the same as X * 4.
+#
+# Let's try shifting then:
+# 00001111 (= 0xF)      X
+# 00111100 (= 0x3C)     X << 2
+#
+# Compare to hypothesis:
+# (00001111 * 4) = (15 * 4) = 60
+# 60 = 0x3C = 00111100
+# Success!
+
+# Test code will do (0xFF << 4)
+# 0xFF = 1111 1111
+# 0xFF << 4 = 1111 1111 0000 = 0xFF0
+
+.pos 0                          # code for testing
+    irmovq      $0xFF,  %rdi    # number to shift (shiftee)
+    irmovq      $4,     %rsi    # how many times to shift (shifter)
+
+main:
+    irmovq      stack,  %rsp    # init stack
+    irmovq      stack,  %rbp
+
+    rrmovq      %rsi,   %rax    # temp %rax (loop counter)
+    irmovq      $1,     %r8     # constant 1
+
+                                # do the magic
+    call        powshifter      # %rsi = 2 ^ %rsi (2 to the power of %rsi)
+    call        mult            # %rdi = %rdi * %rsi
+
+    rrmovq      %r11,   %rdi    # final results in register %rdi,
+                                # as specified by assignment
+    halt
+
+.pos 0x100
+powshifter:                     # raise 2 to the power of shifter
+    addq        %rsi,   %r9     # %r9 += %rsi
+    subq        %r8,    %rax    # decrement loop counter %rax
+    jne         powshifter      # while %rax > 0
+    ret
+
+.pos 0x200
+mult:                           # multiply %rdi by %r9
+    addq        %rdi,   %r11    # add multiplicand to result resister %r11
+    subq        %r8,    %r9     # decrement loop counter %r9 (multiplier)
+    jne         mult            # while %rsi > 0
+    ret
+
+.pos 0x300
+stack:

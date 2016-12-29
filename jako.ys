@@ -1,0 +1,15 @@
+.pos 0
+    irmovq      $50,    %rdi    # dividend
+    irmovq      $10,    %rsi    # divisor
+
+main:
+    irmovq      $1,     %r8     # temp 1
+    addq        %r8,    %rax    # increment result
+    subq        %rsi,   %rdi    # divident - divisor
+    je          stop
+    jmp         main
+stop:
+    halt
+
+# ONLY WORKS WHEN BOTH DIVIDEND AND DIVISOR HAVE THE SAME SIGN
+# NEEDS IMPROVEMENTS FOR FUTURE USE

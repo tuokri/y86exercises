@@ -1,0 +1,15 @@
+.pos 0
+    irmovq      $10,    %rdi    # init operand 1
+    irmovq      $25,    %rsi    # init operand 2
+    irmovq      $1,     %rcx    # 0 for addition, 1 for subtraction
+main:
+    irmovq      $1,     %r8     # temp 1
+    subq        %rcx,   %r8     # determine operation
+    je          subtraction     # if %r8 - %rcx == 0, subtraction
+    jmp         addition        # else addition
+subtraction:
+    subq        %rsi,   %rdi    # %rdi = %rdi - %rsi
+    halt
+addition:
+    addq        %rsi,   %rdi
+    halt

@@ -1,0 +1,29 @@
+.pos 0
+    irmovq      $3,     %rdi    # loop counter (how many elements to move)
+    irmovq      $0,     %rcx    # value of last transferred slot
+
+main:
+    irmovq      stack,  %rsp    # init stack
+    irmovq      stack,  %rbp
+
+    irmovq      $0x200, %rbx    # first address of array
+
+    irmovq      $8,     %r8     # constant 8
+    irmovq      $1,     %r9     # constant 1
+
+looperino:
+    mrmovq      (%rbx), %rcx    # move element from array to %rcx
+    pushq       %rcx            # push %rcx to stack
+    addq        %r8,    %rbx    # "move array pointer"
+    subq        %r9,    %rdi    # decrement loop counter
+    jne         looperino       # while rdi != 0
+    halt
+
+.pos 0x100                      # stackerino
+stack:
+
+.pos 0x200                      # array starts here
+    .align      8
+    .quad       0x47
+    .quad       0x42
+    .quad       0x1234
