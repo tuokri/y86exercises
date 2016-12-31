@@ -1,5 +1,19 @@
 # NELIÖJUURI
 #
+#
+# 1. Vähentäjä-luku alkaa arvosta 1
+# 2. Vähennetään annetusta luvusta vähentäjä, kunnes vähennyslaskun tulos on pienempi kuin nolla
+#    2.1. Joka iteraatiossa vähentäjän arvo kasvaa kahdella
+#    2.2. Iteraatioiden, joissa tulos oli positiivinen, lukumäärä on nyt neliöjuureen tuleva numeroarvo
+#    2.3. jos iteraatioita on 0, käytä alkuperäistää lukua (kohdasta 2) vähennysjäännöksenä
+# 3. Muodostetaan vähennysjäännöksestä uusi luku seuraavalle iteraatiolle lisäämällä perään kaksi nollaa (ts. kertomalla sadalla)
+# 4. Muodostetaan seuraavan desimaalin ensimmäinen vähentäjä
+#    4.1. Lasketaan aritmeettinen keskiarvo viimeisen ja toiseksi viimeisen iteraation vähentäjistä (jos iteraatioita oli 0, on käytössä vain yksi vähentäjä)
+#    4.2. Kerrotaan keskiarvo kymmenellä
+#    4.3. Vähentäjä on keskiarvoa seuraava pariton luku ( ts. +1)
+# 5. Algoritmia jatketaan kohdasta 2. kunnes haluttu tarkkuus (ts. desimaalien määrä) on saavutettu
+#
+#
 # Rekisterit:
 #   %rax    luku, josta neliöjuuri lasketaan
 #   %rcx    vähentäjä
