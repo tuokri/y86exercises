@@ -1,0 +1,127 @@
+# NELIÖJUURI
+#
+# Rekisterit:
+#   %rax    luku, josta neliöjuuri lasketaan
+#   %rcx    vähentäjä
+#   %rdx    iteraatiolaskuri eli neliöjuuren kokonais- tai desimaaliosa
+#   %rbx    vähennysjäännös
+#   %rdi    apumuuttuja alkuperäiselle luvulle %rax
+#   %r8     apumuuttuja (vakio 1)
+#   %r9     apumuuttuja (vakio 2)
+#   %r10    apumuuttuja
+#   %r11    apumuuttuja (jako- ja kertolaskun tulosrekisteri)
+#   %r12    apumuuttuja
+#   %r13    apumuuttuja
+#   %r14    apumuuttuja (haluttujen desimaalien määrä)
+
+.pos 0
+    irmovq      $0,     %rax    # sqrt(0) = 0
+#    irmovq      $1,     %rax    # sqrt(1) = 1
+#    irmovq      $2,     %rax    # sqrt(2) = 1.4142135623731...
+#    irmovq      $3,     %rax    # sqrt(3) = 1.7320508075688...
+#    irmovq      $8,     %rax    # sqrt(8) = 2.8284271247461...
+#    irmovq      $16,    %rax    # sqrt(16) = 4
+#    irmovq      $17,    %rax    # sqrt(17) = 4.12310562562...
+
+main:                           # Suoritetaan vain kerran.
+    irmovq      pino,   %rbp    # Pinon alustus.
+    irmovq      pino,   %rsp    # Pinon alustus.
+    irmovq      $1,     %rcx    # Vähentäjä-luku alkaa arvosta 1.
+    irmovq      $1,     %r8     # Vakio 1, apumuuttuja.
+    irmovq      $2,     %r9     # Vakio 2, apumuuttuja.
+    irmovq      $5,     %r14    # Haluttujen desimaalien lkm.
+
+main2:                          # Jatketaan 1. iteraation jälkeen tästä.
+    irmovq      $0,     %rdx    # Iteraatiolaskuri alkaa arvosta 0.
+    rrmovq      %rax,   %rdi    # Alkuperäinen luku talteen apumuuttujaan.
+
+    call        losa            # Laske neliöjuuren osa.
+
+    subq        %r8,    %rdx    # Jos iteraatioita oli nolla, nyt SF = 1,
+    cmovl       %rdi,   %rbx    # ...vähennysjäännös = alkuperäinen luku
+    cmovge      %r10,   %rbx    # Muutoin vähennysjäännös on losa-aliohjelman
+                                # toiseksi viimeisen iteraation tulos.
+    addq        %r8,    %rdx    # Perutaan aiempi vähennyslasku.
+
+
+    subq        %r8,    %rbx    # Jos vähennysjäännös on nolla, SF = 1
+    jl          loppu           # ...voidaan laskeminen lopettaa etuajassa.
+    addq        %r8,    %rbx    # ...muutoin perutaan vähennyslasku.
+
+    pushq       %rbx            # Vähennysjännös pinoon, kerrottavaksi.
+    irmovq      $100,   %rbx    # Kertoja pinoon.
+    pushq       %rbx
+    call        kerto           # Kerrotaan vähennysjäännös sadalla.
+    popq        %rbx            # Siistitään pino.
+    popq        %rbx            # Siistitään pino.
+    rrmovq      %r11,   %rax    # Haetaan tulos rekisteristä %r11.
+                                # Seuraava laskettava luku on siis vähennys-
+                                # ...jäännös * 100.
+                                # ...%rax = %r11
+
+                                # Lasketaan viimeisen ja toiseksi viimeisen
+                                # ...vähentäjän keskiarvo.
+    addq        %rcx,   %rcx    # %rcx = vähentäjä * 2
+    subq        %r9,    %rcx    # %rcx = %rcx - 2
+    pushq       %rcx            # Jaettava pinoon.
+    pushq       %r9             # Jakaja (2) pinoon.
+    call        jako
+    popq        %rcx            # Siistitään pino.
+    popq        %rcx            # Siistitään pino.
+    rrmovq      %r11,   %rcx    # Haetaan tulos rekisteristä %r11.
+
+                                # Kerrotaan keskiarvo kymmenellä.
+    pushq       %rcx            # Keskiarvo pinoon.
+    irmovq      $10,    %r12    # Kertoja (10) pinoon.
+    pushq       %r12
+    call        kerto
+    popq        %rcx            # Siistitään pino.
+    popq        %rcx            # Siistitään pino.
+    rrmovq      %r11,   %rcx    # Haetaan tulos rekisteristä %r11.
+    addq        %r8,    %rcx    # Lisätään keskiarvoon 1.
+
+    pushq       %rdx            # Neliöjuuren osa (iteraatiolaskuri) pinoon.
+
+    subq        %r8,    %r14    # Lasketaan kunnes saavutetaan haluttu
+    jg          main2           # ...desimaalien lukumäärä.
+    halt
+
+loppu:                          # Käsitellään aikainen lopetus.
+    pushq       %rdx            # Neliöjuuren osa (iteraatiolaskuri) pinoon.
+    halt
+
+losa:                           # Lasketaan neliöjuuren "osa".
+                                # Ensimmäisessä iteratiossa kokonaisossa.
+                                # Seuraavissa iteraatioissa desimaaliosa.
+    rrmovq      %rax,   %r10    # Edellisen iteraation tulos apumuuttujaan.
+    subq        %rcx,   %rax    # Vähennetään annetusta luvusta vähentäjä,
+    jl          losa_ret        # ...kunnes laskun tulos pienempi kuin nolla.
+    addq        %r8,    %rdx    # Iteraatiolaskurin arvo kasvaa yhdellä.
+    addq        %r9,    %rcx    # Vähentäjän arvo kasvaa kahdella.
+    jmp         losa
+    losa_ret:
+        ret
+
+kerto:                          # %r11 = %r12 * %r13
+    irmovq      $0,     %r11    # Alustetaan tulosrekisteri %r11.
+    mrmovq      16(%rsp),%r13   # Haetaan kerrottava pinosta.
+    mrmovq      8(%rsp),%r12    # Haetaan kertoja pinosta.
+kerto2:                         # Tavarat haetaan pinosta vain kerran.
+    addq        %r13,   %r11    # Lisätään kerrotava tulokseen.
+    subq        %r8,    %r12    # Vähennetään kertojaa yhdellä.
+    jg          kerto2          # ...kunnes kertoja on nolla.
+    ret
+
+jako:                           # Toimii vain, kun jakajalla ja jaettavalla
+                                # ...on sama etumerkki.
+    irmovq      $0,     %r11    # Alustetaan tulosrekisteri.
+    mrmovq      16(%rsp),%r13   # Haetaan jaettava pinosta.
+    mrmovq      8(%rsp),%r12    # Haetaan jakaja pinosta.
+jako2:                          # Tavarat haetaan pinosta vain kerran.
+    addq        %r8,    %r11    # Lisätään tulokseen 1.
+    subq        %r12,   %r13    # Jaettava = jaettava - jakaja.
+    jg          jako2           # Kunnes laskun tulos <= 0.
+    ret
+
+.pos 0x1000
+pino:
