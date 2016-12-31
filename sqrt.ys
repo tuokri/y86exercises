@@ -14,8 +14,9 @@
 #   %r13    apumuuttuja
 #   %r14    apumuuttuja (haluttujen desimaalien määrä)
 
-.pos 0
-    irmovq      $0,     %rax    # sqrt(0) = 0
+
+.pos 0                           # Testikoodi
+#    irmovq      $0,     %rax    # sqrt(0) = 0
 #    irmovq      $1,     %rax    # sqrt(1) = 1
 #    irmovq      $2,     %rax    # sqrt(2) = 1.4142135623731...
 #    irmovq      $3,     %rax    # sqrt(3) = 1.7320508075688...
