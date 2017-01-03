@@ -1,5 +1,8 @@
-# NELIÖJUURI
+# Y86-64 ASSEMBLY
+# NELIÖJUURI / SQUARE ROOT
 #
+# LASKETAAN NELIÖJUUREN DESIMAALEJA HALUTTU LUKUMÄÄRÄ
+# LASKENNAN TULOS LÖYTYY PINOSTA
 #
 # 1. Vähentäjä-luku alkaa arvosta 1
 # 2. Vähennetään annetusta luvusta vähentäjä, kunnes vähennyslaskun tulos on pienempi kuin nolla
